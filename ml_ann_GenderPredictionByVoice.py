@@ -13,6 +13,7 @@ from sklearn import utils
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import cross_val_score
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn import tree
 
@@ -72,10 +73,13 @@ def generateDatasets(_features, _labels):
     _features = _scaler.fit_transform(_features)
 
     x_train, x_test, y_train, y_test = train_test_split(_features, _labels, test_size=0.2)
+    # x_train, x_cv, y_train, y_cv = train_test_split(x_train, y_train, test_size=0.2)
+    x_cv = x_test
+    y_cv = y_test
     print x_train.shape, y_train.shape
     print x_test.shape, y_test.shape
 
-    return (x_train, x_test, y_train, y_test)
+    return (x_train, y_train, x_test, y_test, x_cv, y_cv)
 
 def visualizeData(_features, _labels):
     
@@ -150,6 +154,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     n_jobs : integer, optional
         Number of jobs to run in parallel (default 1).
     """
+    plt.clf()
     plt.figure()
     plt.title(title)
     if ylim is not None:
@@ -195,6 +200,10 @@ def multiLayerPerceptronModel(x_train, y_train, x_test, y_test):
     print("Training set loss: %f" % mlp.loss_)
     print("Testing set score: %f" % mlp.score(x_test, y_test))
 
+    plot_learning_curve(mlp, title, x_train, y_train)
+
+    plt.show()
+
     return
 
 def CARTModel(x_train, y_train, x_test, y_test):
@@ -235,7 +244,7 @@ def plot_on_dataset(X, y, ax, name):
 
 fig, axes = plt.subplots(2, 2, figsize=(15, 10))
 _features, _labels = readCSV("./Data/data.csv")
-x_train, x_test, y_train, y_test = generateDatasets(_features, _labels)
+x_train, y_train, x_test, y_test, x_cv, y_cv = generateDatasets(_features, _labels)
 #visualizeData(_features, _labels)
 multiLayerPerceptronModel(x_train, y_train, x_test, y_test)
 CARTModel(x_train, y_train, x_test, y_test)

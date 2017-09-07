@@ -14,6 +14,7 @@ from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import validation_curve
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn import tree
 
@@ -112,6 +113,34 @@ def visualizeData(_features, _labels):
 
     return
 
+def plot_validation_curve(estimator, title, X, y, param_range = np.logspace(-6, -1, 5),param_name="gamma", cv=None):
+
+    train_scores, test_scores = validation_curve(estimator, X, y, param_name=param_name, param_range=param_range, cv=cv, scoring="accuracy", n_jobs=1)
+    print train_scores
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+
+    print np.reshape(param_range, (3, 1))
+    print train_scores_mean.shape, train_scores_std.shape
+
+    # plt.clf()
+    # plt.figure()
+    # plt.title(title)
+    # plt.xlabel("$\%s$" % param_name)
+    # plt.ylabel("Score")
+    # plt.ylim(0.0, 1.1)
+    # lw = 2
+    # plt.semilogx(param_range, train_scores_mean, label="Training score", color="darkorange", lw=lw)
+    # plt.fill_between(param_range, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.2, color="darkorange", lw=lw)
+    # plt.semilogx(param_range, test_scores_mean, label="Cross-validation score", color="navy", lw=lw)
+    # plt.fill_between(param_range, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.2, color="navy", lw=lw)
+    # plt.legend(loc="best")
+    # plt.show()
+
+    return
+
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=1, train_sizes=np.linspace(.1, 1.0, 5)):
     """
@@ -154,7 +183,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     n_jobs : integer, optional
         Number of jobs to run in parallel (default 1).
     """
-    plt.clf()
+    # plt.clf()
     plt.figure()
     plt.title(title)
     if ylim is not None:
@@ -200,7 +229,22 @@ def multiLayerPerceptronModel(x_train, y_train, x_test, y_test):
     print("Training set loss: %f" % mlp.loss_)
     print("Testing set score: %f" % mlp.score(x_test, y_test))
 
+    print mlp.get_params().keys()
+
     plot_learning_curve(mlp, title, x_train, y_train)
+
+    # x = np.arange(5, 6, 1)
+    # y = np.arange(5, 6, 1)
+    # z = np.arange(5, 6, 1)
+    # X,Y,Z = np.meshgrid(x,y,z)
+    # XYZ=np.array([X.flatten(),Y.flatten(),Z.flatten()]).T
+
+    # print XYZ
+
+    plot_validation_curve(mlp, "Validation Curve", x_train, y_train, 
+                            param_range=np.array([(5, 5, 5), (6, 6, 6), (7, 7, 7)]), 
+                            param_name="hidden_layer_sizes")
+
 
     plt.show()
 
